@@ -1,6 +1,6 @@
 # Lesson 7
 
-![](http://github.com/haqu/iphone-nehe/raw/e6115bf899ad501b0f325b52269b72d18818f2b8/lesson07/lesson07.jpg)
+![Screenshot](http://simple.st/i/lesson07.jpg)
 
 ## Features
 
