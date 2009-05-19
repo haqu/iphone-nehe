@@ -3,9 +3,8 @@
 
 #import "EAGLView.h"
 
-#define USE_DEPTH_BUFFER 1
-
 @interface EAGLView ()
+
 @property (nonatomic, retain) EAGLContext *context;
 @property (nonatomic, assign) NSTimer *animationTimer;
 
@@ -28,15 +27,19 @@
 @synthesize animationInterval;
 
 + (Class)layerClass {
-    return [CAEAGLLayer class];
+	return [CAEAGLLayer class];
 }
 
 - (id)initWithCoder:(NSCoder*)coder {
 
 	if((self = [super initWithCoder:coder])) {
+
 		CAEAGLLayer *eaglLayer = (CAEAGLLayer*)self.layer;
+
 		eaglLayer.opaque = YES;
-		eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
+		eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
+										[NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking,
+										kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
 
 		context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
 
@@ -45,13 +48,16 @@
 			return nil;
 		}
 
-		animationInterval = 1.0 / 60.0;
-
-		lastTime = CFAbsoluteTimeGetCurrent();
+		animationInterval = 1.0 / kFPS;
+		
+		currentTime = CFAbsoluteTimeGetCurrent();
+		lastTime = currentTime;
 		
 		xRotation = 0.0f;
 		yRotation = 0.0f;
-				
+		
+		[self setMultipleTouchEnabled:YES];
+		
 		[self initGL];
 		[self initTextures];
 	}
@@ -104,6 +110,7 @@ void gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
 	glLightfv(GL_LIGHT1, GL_POSITION, lightPosition);
 	glEnable(GL_LIGHT1);
 	
+	lightingEnabled = YES;
 	glEnable(GL_LIGHTING);
 	
 	// materials
@@ -112,20 +119,25 @@ void gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
 	GLfloat materialDiffuse[] = { 0.8f, 0.8f, 0.8f, 1.0f };
 	
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, materialAmbient);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialDiffuse);	
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, materialDiffuse);
 }
 
 - (void)initTextures {
-	cubeTexture = [[Texture2D alloc] initWithImage:[UIImage imageNamed:@"crate.bmp"]];
+
+	antialiasEnabled = YES;
+	[Texture2D setAntiAliasTexParameters];
+	
+	cubeTexture = [[Texture2D alloc] initWithImage:[UIImage imageNamed:@"cube.jpg"]];
 }
 
+
 - (void)gameLoop {
-	
+
 	float delta;
 	currentTime = CFAbsoluteTimeGetCurrent();
 	delta = (currentTime - lastTime);
 	lastTime = currentTime;
-	
+
 	[self updateScene:delta];
 	[self renderScene];
 }
@@ -133,7 +145,7 @@ void gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
 - (void)updateScene:(float)delta {
 
 	yRotation += 25.0f * delta;
-
+	
 	static float amplitude = 0.0f;
 	if(amplitude < 80.0f) amplitude += 5.0f * delta;
 	xRotation = amplitude * (float)sin(0.4 * currentTime) * 2.0f;
@@ -142,7 +154,7 @@ void gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
 - (void)renderScene {
     
 	[EAGLContext setCurrentContext:context];
-
+	
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -186,14 +198,14 @@ void gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
 	normals[0][0] = normals[1][0] = normals[2][0] = normals[3][0] = 0.0f;
 	normals[0][1] = normals[1][1] = normals[2][1] = normals[3][1] = 0.0f;
 	normals[0][2] = normals[1][2] = normals[2][2] = normals[3][2] = 1.0f;
-
+	
 	texCoords[0][0] = 0.0f; texCoords[0][1] = 1.0f;
 	texCoords[1][0] = 1.0f; texCoords[1][1] = 1.0f;
 	texCoords[2][0] = 1.0f; texCoords[2][1] = 0.0f;
 	texCoords[3][0] = 0.0f; texCoords[3][1] = 0.0f;
 	
 	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, indices);
-
+	
 	// back face
 	
 	vertices[0][0] =  1.0f; vertices[0][1] = -1.0f; vertices[0][2] = -1.0f;
@@ -211,7 +223,7 @@ void gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
 	texCoords[3][0] = 0.0f; texCoords[3][1] = 0.0f;
 	
 	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, indices);
-
+	
 	// top face
 	
 	vertices[0][0] = -1.0f; vertices[0][1] = 1.0f; vertices[0][2] =  1.0f;
@@ -227,7 +239,7 @@ void gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
 	texCoords[1][0] = 0.0f; texCoords[1][1] = 1.0f;
 	texCoords[2][0] = 0.0f; texCoords[2][1] = 0.0f;
 	texCoords[3][0] = 1.0f; texCoords[3][1] = 0.0f;
-
+	
 	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, indices);
 	
 	// bottom face
@@ -265,7 +277,7 @@ void gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
 	texCoords[3][0] = 1.0f; texCoords[3][1] = 0.0f;
 	
 	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, indices);
-
+	
 	// left face
 	
 	vertices[0][0] = -1.0f; vertices[0][1] = -1.0f; vertices[0][2] = -1.0f;
@@ -289,6 +301,26 @@ void gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
+- (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event {
+	if([touches count] == 1) {
+		NSLog(@"toggle lighting with one-finger touch");
+		lightingEnabled = !lightingEnabled;
+		if(lightingEnabled) {
+			glEnable(GL_LIGHTING);
+		} else {
+			glDisable(GL_LIGHTING);
+		}
+	} else {
+		NSLog(@"toggle antialiasing with two-fingers touch");
+		antialiasEnabled = !antialiasEnabled;
+		if(antialiasEnabled) {
+			[Texture2D setAntiAliasTexParameters];
+		} else {
+			[Texture2D setAliasTexParameters];
+		}
+	}
+}
+
 - (void)layoutSubviews {
 	[EAGLContext setCurrentContext:context];
 	[self destroyFramebuffer];
@@ -297,7 +329,7 @@ void gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
 }
 
 - (BOOL)createFramebuffer {
-
+    
 	glGenFramebuffersOES(1, &viewFramebuffer);
 	glGenRenderbuffersOES(1, &viewRenderbuffer);
 
@@ -309,13 +341,11 @@ void gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
 	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
 	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
 
-	if(USE_DEPTH_BUFFER) {
-		glGenRenderbuffersOES(1, &depthRenderbuffer);
-		glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
-		glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT16_OES, backingWidth, backingHeight);
-		glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
-	}
-
+	glGenRenderbuffersOES(1, &depthRenderbuffer);
+	glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
+	glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT16_OES, backingWidth, backingHeight);
+	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
+	
 	if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES) {
 		NSLog(@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
 		return NO;
@@ -325,16 +355,10 @@ void gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
 }
 
 - (void)destroyFramebuffer {
-    
 	glDeleteFramebuffersOES(1, &viewFramebuffer);
 	viewFramebuffer = 0;
 	glDeleteRenderbuffersOES(1, &viewRenderbuffer);
 	viewRenderbuffer = 0;
-
-	if(depthRenderbuffer) {
-		glDeleteRenderbuffersOES(1, &depthRenderbuffer);
-		depthRenderbuffer = 0;
-	}
 }
 
 - (void)startAnimation {
@@ -351,6 +375,7 @@ void gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
 }
 
 - (void)setAnimationInterval:(NSTimeInterval)interval {
+    
 	animationInterval = interval;
 	if(animationTimer) {
 		[self stopAnimation];
@@ -359,7 +384,7 @@ void gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
 }
 
 - (void)dealloc {
-    
+
 	[self stopAnimation];
 
 	if([EAGLContext currentContext] == context) {

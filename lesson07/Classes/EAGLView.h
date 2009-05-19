@@ -4,16 +4,18 @@
 #import <OpenGLES/ES1/glext.h>
 #import "Texture2D.h"
 
+#define kFPS 60.0
+
 @interface EAGLView : UIView {
     
 @private
-
 	GLint backingWidth;
 	GLint backingHeight;
 
 	EAGLContext *context;
 
-	GLuint viewRenderbuffer, viewFramebuffer;
+	GLuint viewRenderbuffer;
+	GLuint viewFramebuffer;
 	GLuint depthRenderbuffer;
 
 	NSTimer *animationTimer;
@@ -26,6 +28,9 @@
 	
 	GLfloat xRotation;
 	GLfloat yRotation;
+	
+	BOOL lightingEnabled;
+	BOOL antialiasEnabled;
 }
 
 @property NSTimeInterval animationInterval;

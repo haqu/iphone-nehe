@@ -8,6 +8,8 @@
 * texture
 * materials
 * lighting
+* toggle lighting with one-finger touch
+* toggle texture antialiasing with two-fingers touch 
 
 ## References
 

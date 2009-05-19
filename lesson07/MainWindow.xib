@@ -154,7 +154,7 @@
 					</object>
 					<string>{{500, 343}, {320, 480}}</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
-					<string>openGLAppDelegate</string>
+					<string>lesson07AppDelegate</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>EAGLView</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
@@ -194,7 +194,7 @@
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
-					<string key="className">openGLAppDelegate</string>
+					<string key="className">lesson07AppDelegate</string>
 					<string key="superclassName">NSObject</string>
 					<object class="NSMutableDictionary" key="outlets">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -211,13 +211,13 @@
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">Classes/openGLAppDelegate.h</string>
+						<string key="minorKey">Classes/lesson07AppDelegate.h</string>
 					</object>
 				</object>
 			</object>
 		</object>
 		<int key="IBDocument.localizationMode">0</int>
-		<string key="IBDocument.LastKnownRelativeProjectPath">openGL.xcodeproj</string>
+		<string key="IBDocument.LastKnownRelativeProjectPath">lesson07.xcodeproj</string>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 	</data>
 </archive>
