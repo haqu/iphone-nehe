@@ -1,7 +1,5 @@
 # Lesson 7
 
-![Screenshot](http://simple.st/i/lesson07.jpg)
-
 ## Features
 
 * rotating cube
