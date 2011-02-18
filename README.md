@@ -2,6 +2,10 @@
 
 Inspired by NeHe Productions.
 
+## Lesson 7
+
+![Screenshot](http://fc03.deviantart.com/fs42/f/2009/150/4/c/iPhone_NeHe_7_Screenshot_by_sthaqu.jpg)
+
 ## References
 
 * [NeHe Productions](http://nehe.gamedev.net/)
